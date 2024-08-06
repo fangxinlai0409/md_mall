@@ -75,9 +75,13 @@ WSGI_APPLICATION = 'md_mall.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
-    }
+        'ENGINE': 'django.db.backends.mysql', # 数据库引擎
+        'HOST': '127.0.0.1', # 数据库主机
+        'PORT': 3306, # 数据库端口
+        'USER': 'fxl', # 数据库用户名
+        'PASSWORD': 'Fxf270601!', # 数据库用户密码
+        'NAME': 'md_mall' # 数据库名字
+    },
 }
 
 
