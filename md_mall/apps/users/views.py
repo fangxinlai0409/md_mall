@@ -50,5 +50,29 @@ class RegisterView(View):
             return JsonResponse({'code': 400, 'errmsg': 'allow格式有误!'})
 
         user=User.objects.create_user(username=username, password=password, mobile=mobile)
-        user.save()
+
+        from django.contrib.auth import login
+        login(request, user)
+
+
         return JsonResponse({'code': 0, 'errmsg': 'ok'})
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
