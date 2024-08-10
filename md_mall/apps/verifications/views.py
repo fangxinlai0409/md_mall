@@ -31,8 +31,28 @@ class SmsCodeView(View):
             return JsonResponse({'code':400,'errmsg':'code expired'})
         if redis_image_code.decode().lower() != image_code.lower():
             return JsonResponse({'code':400,'errmsg':'code does not match'})
+        send_flag = redis_cli.get('send_flag_%s' % mobile)
+        print(send_flag)
+        if send_flag is not None:
+
+            return JsonResponse({'code':400,'errmsg':'do not send messages frequently'})
         sms_code = '%06d'%randint(0,999999)
         redis_cli.setex(mobile, 300, sms_code)
+        redis_cli.setex('send_flag_%s'%mobile, 60,1)
+
         print(mobile, sms_code)
         CCP().send_template_sms(mobile,[sms_code, 5], 1)
+
+
+        #sms_code_client = request.POST.get('sms_code')
+        # 判断短信验证码是否正确：跟图形验证码的验证一样的逻辑
+        # 提取服务端存储的短信验证码：以前怎么存储，现在就怎么提取
+        #redis_conn = get_redis_connection('code')
+        #sms_code_server = redis_conn.get(mobile)  # sms_code_server是bytes
+        # 判断短信验证码是否过期
+        #if not sms_code_server:
+        #   return JsonResponse({'code': 400, 'errmsg': '短信验证码失效'})
+        # 对比用户输入的和服务端存储的短信验证码是否一致
+        #if sms_code_client != sms_code_server.decode():
+        #   return JsonResponse({'code': 400, 'errmsg': '短信验证码有误'})
         return JsonResponse({'code':0,'errmsg':'ok'})
