@@ -70,10 +70,29 @@ class RegisterView(View):
         return JsonResponse({'code': 0, 'errmsg': 'ok'})
 
 
+class LoginView(View):
+    def post(self, request):
+        data = json.loads(request.body.decode())
+        username = data.get('username')
+        password = data.get('password')
+        remembered = data.get('remembered')
+        if not all([username, password]):
+            return JsonResponse({'code': 400, 'errmsg': 'not enough params!'})
+        if re.match(r'^1[3-9]\d{9}$', username):
+            User.USERNAME_FIELD = 'mobile'
+        else:
+            User.USERNAME_FIELD =  'username';
+        from django.contrib.auth import authenticate, login
+        user = authenticate(username=username, password=password)
+        if user is None:
+            return JsonResponse({'code': 400, 'errmsg': 'username or password error!'})
+        login(request, user)
+        if remembered:
+            request.session.set_expiry(None)
+        else:
+            request.session.set_expiry(0)
 
-
-
-
+        return JsonResponse({'code': 0, 'errmsg': 'ok'})
 
 
 
