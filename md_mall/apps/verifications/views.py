@@ -37,11 +37,12 @@ class SmsCodeView(View):
 
             return JsonResponse({'code':400,'errmsg':'do not send messages frequently'})
         sms_code = '%06d'%randint(0,999999)
-        redis_cli.setex(mobile, 300, sms_code)
-        redis_cli.setex('send_flag_%s'%mobile, 60,1)
-
-        print(mobile, sms_code)
-        CCP().send_template_sms(mobile,[sms_code, 5], 1)
+        pipline = redis_cli.pipeline()
+        pipline.setex(mobile, 300, sms_code)
+        pipline.setex('send_flag_%s'%mobile, 60,1)
+        pipline.execute()
+        from celery_tasks.sms.tasks import celery_send_sms_code
+        celery_send_sms_code.delay(mobile, sms_code)
 
 
         #sms_code_client = request.POST.get('sms_code')
