@@ -1,10 +1,13 @@
 import json
 import re
 
+from django.contrib.auth.mixins import AccessMixin,LoginRequiredMixin
 from django.http import JsonResponse
 from django.shortcuts import render
 from django.views import View
 from apps.users.models import User
+from utils.views import LoginRequiredJSONMixin
+
 
 # Create your views here.
 
@@ -92,8 +95,23 @@ class LoginView(View):
         else:
             request.session.set_expiry(0)
 
-        return JsonResponse({'code': 0, 'errmsg': 'ok'})
+        response = JsonResponse({'code': 0, 'errmsg': 'ok'})
+        response.set_cookie('username',username)
+        return response
 
+from django.contrib.auth import logout
+class LogoutView(View):
+    def delete(self, request):
+        logout(request)
+        response = JsonResponse({'code': 0, 'errmsg': 'ok'})
+        response.delete_cookie('username')
+        return response
+
+
+
+class CenterView(LoginRequiredJSONMixin,View):
+    def get(self,request):
+        return JsonResponse({'code': 0, 'errmsg': 'ok'})
 
 
 
