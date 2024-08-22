@@ -1,10 +1,10 @@
 import json
 import re
-
+from apps.oauth.utils import generic_openid
 from django.contrib.auth import login
 from django.http import JsonResponse
 from django.shortcuts import render
-
+from md_mall import settings
 
 # Create your views here.
 from django.views import View
@@ -42,7 +42,8 @@ class OauthQQView(View):
         try:
             qquser = OAuthQQUser.objects.get(openid=openid)
         except OAuthQQUser.DoesNotExist:
-            response = JsonResponse({'code':400,'access_token':openid})
+            access_token=generic_openid(openid)
+            response = JsonResponse({'code':400,'access_token':access_token})
             return response
         else:
             login(request,qquser.user)
@@ -52,7 +53,7 @@ class OauthQQView(View):
     def post(self,request):
         data=json.loads(request.body.decode())
         mobile = data.get('mobile')
-        openid = data.get('access_token')
+        access_token = data.get('access_token')
         password = data.get('password')
         sms_code = data.get('sms_code')
         '''
@@ -83,6 +84,11 @@ class OauthQQView(View):
             # 如果不匹配, 则直接返回:
             return JsonResponse({'code': 400,'errmsg': '输入的验证码有误'})
         '''
+        from apps.oauth.utils import check_access_token
+        openid = check_access_token(access_token)
+        if openid is None:
+            return JsonResponse({'code': 400,'errmsg':'bad param'})
+
         try:
             user = User.objects.get(mobile=mobile)
         except User.DoesNotExist:
@@ -96,3 +102,5 @@ class OauthQQView(View):
         response = JsonResponse({'code':0,'errmsg':'ok'})
         response.set_cookie('username',user.username)
         return response
+
+
