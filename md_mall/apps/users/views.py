@@ -131,10 +131,15 @@ class EmailView(View):
         user.save()
         from django.core.mail import send_mail
         subject='md_mall active'
-        message = "click to active <a href='http://www.itcast.cn'>active</a>"
+        from apps.users.utils import generic_email_verify_token
+        token = generic_email_verify_token(request.user.id)
+
+        message = ""
+        html_message = "click to active <a href='http://www.itcast.cn/?token=%s'>active</a>"%token
         from_email = 'fxfasdf1234@163.com'
         recipient_list=['fxfasdf1234@163.com']
-        send_mail(subject=subject,html_message=message,from_email=from_email,recipient_list=recipient_list)
+        send_mail(subject=subject,message=message,html_message=html_message,
+                  from_email=from_email,recipient_list=recipient_list)
         return JsonResponse({'code':0,'errmsg':'ok'})
 
 
