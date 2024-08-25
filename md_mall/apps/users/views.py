@@ -120,6 +120,23 @@ class InfoView(LoginRequiredJSONMixin,View):
         return JsonResponse({'code': 0, 'errmsg': 'ok','info_data':info_data})
 
 
+class EmailView(View):
+    def put(self,request):
+        data = json.loads(request.body.decode())
+        email = data.get('email')
+        #verification email
+
+        user = request.user
+        user.email=email
+        user.save()
+        from django.core.mail import send_mail
+        subject='md_mall active'
+        message = "click to active <a href='http://www.itcast.cn'>active</a>"
+        from_email = 'fxfasdf1234@163.com'
+        recipient_list=['fxfasdf1234@163.com']
+        send_mail(subject=subject,html_message=message,from_email=from_email,recipient_list=recipient_list)
+        return JsonResponse({'code':0,'errmsg':'ok'})
+
 
 
 
