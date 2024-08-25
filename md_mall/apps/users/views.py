@@ -6,6 +6,7 @@ from django.http import JsonResponse
 from django.shortcuts import render
 from django.views import View
 from apps.users.models import User
+from md_mall import settings
 from utils.views import LoginRequiredJSONMixin
 
 
@@ -135,15 +136,32 @@ class EmailView(View):
         token = generic_email_verify_token(request.user.id)
 
         message = ""
-        html_message = "click to active <a href='http://www.itcast.cn/?token=%s'>active</a>"%token
+        html_message = '<p>尊敬的用户您好！</p>' \
+                       '<p>感谢您使用美多商城。</p>' \
+                       '<p>您的邮箱为：%s 。请点击此链接激活您的邮箱：</p>' \
+                       '<p><a href="%s">%s<a></p>' % (email, settings.EMAIL_VERIFY_URL+'?token=%s'%token, settings.EMAIL_VERIFY_URL+'?token=%s'%token)
         from_email = 'fxfasdf1234@163.com'
         recipient_list=['fxfasdf1234@163.com']
-        send_mail(subject=subject,message=message,html_message=html_message,
-                  from_email=from_email,recipient_list=recipient_list)
+        from celery_tasks.email.tasks import celery_send_email
+        celery_send_email.delay(subject=subject,message=message,from_email=from_email,
+                                recipient_list=recipient_list,html_message=html_message)
         return JsonResponse({'code':0,'errmsg':'ok'})
 
+class EmailVerifyView(View):
+    def put(self,request):
+        params = request.GET
+        token = params.get('token')
+        if token is None:
+            return JsonResponse({'code':400,'errmsg':'no params'})
 
-
+        from apps.users.utils import check_verify_token
+        user_id = check_verify_token(token)
+        if user_id is None:
+            return JsonResponse({'code':400,'errmsg':'no params'})
+        user = User.objects.get(id=user_id)
+        user.email_active = True
+        user.save()
+        return JsonResponse({'code': 0, 'errmsg': 'ok'})
 
 
 
