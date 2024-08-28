@@ -164,7 +164,67 @@ class EmailVerifyView(View):
         return JsonResponse({'code': 0, 'errmsg': 'ok'})
 
 
+from apps.users.models import Address
+class AddressCreateView(LoginRequiredJSONMixin,View):
+    def post(self,request):
+        data = json.loads(request.body.decode())
+        receiver = data.get('receiver')
+        province_id = data.get('province_id')
+        city_id = data.get('city_id')
+        district_id = data.get('district_id')
+        place = data.get('place')
+        mobile = data.get('mobile')
+        tel = data.get('tel')
+        email = data.get('email')
+        user = request.user
+        # verification params
+        new_address = Address.objects.create(
+            user=user,
+            title=receiver,
+            receiver=receiver,
+            province_id=province_id,
+            city_id=city_id,
+            district_id=district_id,
+            place=place,
+            mobile=mobile,
+            tel=tel,
+            email=email
+        )
+        address = {
+            "id": new_address.id,
+            "title": new_address.title,
+            "receiver": new_address.receiver,
+            "province": new_address.province.name,
+            "city": new_address.city.name,
+            "district": new_address.district.name,
+            "place": new_address.place,
+            "mobile": new_address.mobile,
+            "tel": new_address.tel,
+            "email": new_address.email
+        }
+        return JsonResponse({'code':0,'errmsg':'ok','address':address})
 
+
+
+class AddressView(LoginRequiredJSONMixin,View):
+    def get(self,request):
+        user = request.user
+        addresses = Address.objects.filter(user=user,is_deleted=False)
+        address_list = []
+        for address in addresses:
+            address_list.append({
+                "id": address.id,
+                "title": address.title,
+                "receiver": address.receiver,
+                "province": address.province.name,
+                "city": address.city.name,
+                "district": address.district.name,
+                "place": address.place,
+                "mobile": address.mobile,
+                "tel": address.tel,
+                "email": address.email
+            })
+        return JsonResponse({'code':0,'errmsg':'ok','addresses':address_list})
 
 
 

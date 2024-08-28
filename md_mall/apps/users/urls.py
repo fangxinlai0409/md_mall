@@ -11,4 +11,6 @@ urlpatterns = [
     path('info/', views.InfoView.as_view() ),
     path('emails/', views.EmailView.as_view() ),
     path('emails/verification/', views.EmailVerifyView.as_view() ),
+    path('addresses/create/', views.AddressCreateView.as_view() ),
+    path('addresses/', views.AddressView.as_view() ),
 ]
