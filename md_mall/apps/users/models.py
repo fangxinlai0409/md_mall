@@ -36,5 +36,5 @@ class Address(BaseModel):
         db_table = 'tb_address'
         verbose_name = '用户地址'
         verbose_name_plural = verbose_name
-        ordering = ['-updated_at']
+        ordering = ['-update_time']
 
