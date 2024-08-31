@@ -16,8 +16,8 @@ DROP TABLE IF EXISTS `tb_channel_group`;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `tb_brand` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
-  `create_time` datetime(6) NOT NULL,
-  `update_time` datetime(6) NOT NULL,
+  `created_at` datetime(6) NOT NULL,
+  `updated_at` datetime(6) NOT NULL,
   `name` varchar(20) NOT NULL,
   `logo` varchar(100) NOT NULL,
   `first_letter` varchar(1) NOT NULL,
@@ -43,8 +43,8 @@ UNLOCK TABLES;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `tb_content_category` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
-  `create_time` datetime(6) NOT NULL,
-  `update_time` datetime(6) NOT NULL,
+  `created_at` datetime(6) NOT NULL,
+  `updated_at` datetime(6) NOT NULL,
   `name` varchar(50) NOT NULL,
   `key` varchar(50) NOT NULL,
   PRIMARY KEY (`id`)
@@ -69,8 +69,8 @@ UNLOCK TABLES;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `tb_content` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
-  `create_time` datetime(6) NOT NULL,
-  `update_time` datetime(6) NOT NULL,
+  `created_at` datetime(6) NOT NULL,
+  `updated_at` datetime(6) NOT NULL,
   `title` varchar(100) NOT NULL,
   `url` varchar(300) NOT NULL,
   `image` varchar(100) DEFAULT NULL,
@@ -102,8 +102,8 @@ UNLOCK TABLES;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `tb_goods_category` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
-  `create_time` datetime(6) NOT NULL,
-  `update_time` datetime(6) NOT NULL,
+  `created_at` datetime(6) NOT NULL,
+  `updated_at` datetime(6) NOT NULL,
   `name` varchar(10) NOT NULL,
   `parent_id` int(11) DEFAULT NULL,
   PRIMARY KEY (`id`),
@@ -153,8 +153,8 @@ UNLOCK TABLES;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `tb_goods_channel` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
-  `create_time` datetime(6) NOT NULL,
-  `update_time` datetime(6) NOT NULL,
+  `created_at` datetime(6) NOT NULL,
+  `updated_at` datetime(6) NOT NULL,
   `group_id` int(11) NOT NULL,
   `url` varchar(50) NOT NULL,
   `sequence` int(11) NOT NULL,
@@ -186,8 +186,8 @@ UNLOCK TABLES;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `tb_spu` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
-  `create_time` datetime(6) NOT NULL,
-  `update_time` datetime(6) NOT NULL,
+  `created_at` datetime(6) NOT NULL,
+  `updated_at` datetime(6) NOT NULL,
   `name` varchar(50) NOT NULL,
   `sales` int(11) NOT NULL,
   `comments` int(11) NOT NULL,
@@ -229,8 +229,8 @@ UNLOCK TABLES;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `tb_spu_specification` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
-  `create_time` datetime(6) NOT NULL,
-  `update_time` datetime(6) NOT NULL,
+  `created_at` datetime(6) NOT NULL,
+  `updated_at` datetime(6) NOT NULL,
   `name` varchar(20) NOT NULL,
   `spu_id` int(11) NOT NULL,
   PRIMARY KEY (`id`),
@@ -257,8 +257,8 @@ UNLOCK TABLES;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `tb_specification_option` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
-  `create_time` datetime(6) NOT NULL,
-  `update_time` datetime(6) NOT NULL,
+  `created_at` datetime(6) NOT NULL,
+  `updated_at` datetime(6) NOT NULL,
   `value` varchar(20) NOT NULL,
   `spec_id` int(11) NOT NULL,
   PRIMARY KEY (`id`),
@@ -285,8 +285,8 @@ UNLOCK TABLES;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `tb_sku` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
-  `create_time` datetime(6) NOT NULL,
-  `update_time` datetime(6) NOT NULL,
+  `created_at` datetime(6) NOT NULL,
+  `updated_at` datetime(6) NOT NULL,
   `name` varchar(50) NOT NULL,
   `caption` varchar(100) NOT NULL,
   `price` decimal(10,2) NOT NULL,
@@ -325,8 +325,8 @@ UNLOCK TABLES;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `tb_sku_image` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
-  `create_time` datetime(6) NOT NULL,
-  `update_time` datetime(6) NOT NULL,
+  `created_at` datetime(6) NOT NULL,
+  `updated_at` datetime(6) NOT NULL,
   `image` varchar(100) NOT NULL,
   `sku_id` int(11) NOT NULL,
   PRIMARY KEY (`id`),
@@ -353,8 +353,8 @@ UNLOCK TABLES;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `tb_sku_specification` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
-  `create_time` datetime(6) NOT NULL,
-  `update_time` datetime(6) NOT NULL,
+  `created_at` datetime(6) NOT NULL,
+  `updated_at` datetime(6) NOT NULL,
   `option_id` int(11) NOT NULL,
   `sku_id` int(11) NOT NULL,
   `spec_id` int(11) NOT NULL,
