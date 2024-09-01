@@ -42,7 +42,8 @@ INSTALLED_APPS = [
     'apps.areas',
     'apps.goods',
     'apps.contents',
-    'corsheaders'
+    'corsheaders',
+    'haystack',
 ]
 
 MIDDLEWARE = [
@@ -231,3 +232,11 @@ EMAIL_VERIFY_URL = 'http://www.meiduo.site:8080/success_verify_email.html'
 
 
 DEFAULT_FILE_STORAGE = 'utils.fastdfs.storage.MyStorage'
+
+HAYSTACK_CONNECTIONS = {
+    'default': {
+        'ENGINE': 'haystack.backends.elasticsearch2_backend.Elasticsearch2SearchEngine',
+        'URL': 'http://10.0.2.15:9200/',
+        'INDEX_NAME': 'meiduo',
+    },
+}

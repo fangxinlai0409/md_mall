@@ -43,3 +43,14 @@ class ListView(View):
         print(sku_list)
         total_num = paginator.num_pages
         return JsonResponse({'code':0,'errmsg':'ok','list':sku_list,'count':total_num,'breadcrumb':breadcrumb})
+
+
+
+
+
+
+
+
+
+
+
