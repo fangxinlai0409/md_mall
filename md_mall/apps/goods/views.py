@@ -1,4 +1,6 @@
 # Create your views here.
+import os.path
+
 from django.shortcuts import render
 from django.views import View
 from utils.goods import get_categories,get_breadcrumb
@@ -44,10 +46,42 @@ class ListView(View):
         total_num = paginator.num_pages
         return JsonResponse({'code':0,'errmsg':'ok','list':sku_list,'count':total_num,'breadcrumb':breadcrumb})
 
+from haystack.views import SearchView
+class SKUSearchView(SearchView):
 
+    def create_response(self):
+        # 获取搜索结果
+        context = self.get_context()
+        sku_list = []
+        for sku in context['page'].object_list:
+            sku_list.append({
+                'id': sku.object.id,
+                'name': sku.object.name,
+                'price': sku.object.price,
+                'default_image_url': sku.object.default_image.url,
+                'searchkey': context.get('query'),
+                'page_size': context['page'].paginator.num_pages,
+                'count': context['page'].paginator.count
+            })
+        return JsonResponse(sku_list,safe=False)
 
-
-
+from utils.goods import get_categories,get_breadcrumb,get_goods_specs
+class DetailView(View):
+    def get(self,request,sku_id):
+        try:
+            sku = SKU.objects.get(id = sku_id)
+        except SKU.DoesNotExist:
+            pass
+        categories = get_categories()
+        breadcrumb = get_breadcrumb(sku.category)
+        goods_specs = get_goods_specs(sku)
+        context = {
+            'categories': categories,
+            'breadcrumb': breadcrumb,
+            'sku': sku,
+            'specs': goods_specs,
+        }
+        return render(request,'detail.html',context)
 
 
 

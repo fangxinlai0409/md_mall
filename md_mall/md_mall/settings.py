@@ -44,6 +44,7 @@ INSTALLED_APPS = [
     'apps.contents',
     'corsheaders',
     'haystack',
+    'django_crontab',
 ]
 
 MIDDLEWARE = [
@@ -207,7 +208,9 @@ CORS_ALLOWED_ORIGINS = (
     'http://127.0.0.1:8080',
     'http://localhost:8080',
     'http://www.meiduo.site:8080',
-    'http://www.meiduo.site:8000'
+    'http://www.meiduo.site:8000',
+    'http://image.meiduo.site:8888',
+    'http://10.0.2.15:8888',
 )
 CORS_ALLOW_CREDENTIALS = True  # 允许携带cookie
 
@@ -232,11 +235,16 @@ EMAIL_VERIFY_URL = 'http://www.meiduo.site:8080/success_verify_email.html'
 
 
 DEFAULT_FILE_STORAGE = 'utils.fastdfs.storage.MyStorage'
-
+FDFS_BASE_URL = 'http://image.meiduo.site:8888/'
 HAYSTACK_CONNECTIONS = {
     'default': {
-        'ENGINE': 'haystack.backends.elasticsearch2_backend.Elasticsearch2SearchEngine',
+        'ENGINE': 'haystack.backends.elasticsearch_backend.ElasticsearchSearchEngine',
         'URL': 'http://10.0.2.15:9200/',
         'INDEX_NAME': 'meiduo',
     },
 }
+
+HAYSTACK_SEARCH_RESULTS_PER_PAGE = 5
+CRONJOBS =[
+    ('*/1 * * * *','apps.contents.crons.generic_meiduo_index','>> ' + os.path.join(BASE_DIR, 'logs/crontab.log'))
+]
