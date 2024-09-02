@@ -8,7 +8,7 @@ from django.views import View
 from apps.users.models import User
 from md_mall import settings
 from utils.views import LoginRequiredJSONMixin
-
+from django_redis import get_redis_connection
 
 # Create your views here.
 
@@ -226,8 +226,35 @@ class AddressView(LoginRequiredJSONMixin,View):
             })
         return JsonResponse({'code':0,'errmsg':'ok','addresses':address_list})
 
+from apps.goods.models import SKU
+class UserHistoryView(LoginRequiredJSONMixin,View):
+    def post(self,request):
+        data = json.loads(request.body.decode())
+        sku_id = data.get('sku_id')
+        try:
+            sku = SKU.objects.get(id=sku_id)
+        except SKU.DoesNotExist:
+            return JsonResponse({'code':400,'errmsg':'no goods'})
+        user = request.user
+        redis_cli = get_redis_connection('history')
+        redis_cli.lrem('history_%s'%user.id,0,sku_id)
+        redis_cli.lpush('history_%s'%user.id,sku_id)
+        redis_cli.ltrim('history_%s'%user.id,0,4)
+        return JsonResponse({'code':0,'errmsg':'ok'})
 
-
+    def get(self,request):
+        redis_cli= get_redis_connection('history')
+        ids = redis_cli.lrange('history_%s'%request.user.id,0,4)
+        history_list=[]
+        for sku_id in ids:
+            sku=SKU.objects.get(id=sku_id)
+            history_list.append({
+                'id': sku.id,
+                'name': sku.name,
+                'default_image_url': sku.default_image.url,
+                'price': sku.price
+            })
+        return JsonResponse({'code':0,'errmsg':'ok','skus':history_list})
 
 
 

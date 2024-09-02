@@ -84,6 +84,23 @@ class DetailView(View):
         return render(request,'detail.html',context)
 
 
+from apps.goods.models import GoodsVisitCount
+import datetime
+class CategoryVisitCountView(View):
+    def post(self,request,category_id):
+        try:
+            category = GoodsCategory.objects.get(id=category_id)
+        except GoodsCategory.DoesNotExist:
+            return JsonResponse({'code':400,'errmsg':'no this category'})
+        today = datetime.date.today()
+        try:
+            gvc = GoodsVisitCount.objects.get(category=category,date=today)
+        except GoodsVisitCount.DoesNotExist:
+            GoodsVisitCount.objects.create(category=category,date=today,count=1)
+        else:
+            gvc.count += 1
+            gvc.save()
+        return JsonResponse({'code':0,'errmsg':'ok'})
 
 
 
