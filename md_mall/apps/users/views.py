@@ -5,6 +5,8 @@ from django.contrib.auth.mixins import AccessMixin,LoginRequiredMixin
 from django.http import JsonResponse
 from django.shortcuts import render
 from django.views import View
+
+from apps.carts.utils import merge_cookie_to_redis
 from apps.users.models import User
 from md_mall import settings
 from utils.views import LoginRequiredJSONMixin
@@ -91,6 +93,7 @@ class LoginView(View):
         if user is None:
             return JsonResponse({'code': 400, 'errmsg': 'username or password error!'})
         login(request, user)
+
         if remembered:
             request.session.set_expiry(None)
         else:
@@ -98,6 +101,7 @@ class LoginView(View):
 
         response = JsonResponse({'code': 0, 'errmsg': 'ok'})
         response.set_cookie('username',username)
+        merge_cookie_to_redis(request, response)
         return response
 
 from django.contrib.auth import logout
