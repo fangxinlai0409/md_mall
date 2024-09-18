@@ -53,3 +53,5 @@ class OrderSettlementView(LoginRequiredJSONMixin,View):
             'freight':freight
         }
         return JsonResponse({'code':0,'errmsg':'ok','context':context})
+
+
