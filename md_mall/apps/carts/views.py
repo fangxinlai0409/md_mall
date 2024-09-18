@@ -25,7 +25,7 @@ class CartsView(View):
         user = request.user
         if user.is_authenticated:
             redis_cli=get_redis_connection('carts')
-            pipeline = redis_cli.pipeline
+            pipeline = redis_cli.pipeline()
             pipeline.hincrby('carts_%s'%user.id,sku_id,count)
             pipeline.sadd('selected_%s'%user.id,sku_id)
             pipeline.execute()
@@ -87,7 +87,7 @@ class CartsView(View):
 
     def put(self,request):
         user = request.user
-        data = json.loads(request.boddy.decode())
+        data = json.loads(request.body.decode())
         sku_id = data.get('sku_id')
         count = data.get('count')
         selected = data.get('selected')
