@@ -1,5 +1,6 @@
 import json
 from decimal import Decimal
+from time import sleep
 
 from django.http import JsonResponse
 from django.shortcuts import render
@@ -106,30 +107,32 @@ class OrderCommitView(View):
                 carts[int(sku_id)] = int(sku_id_counts[sku_id])
 
             for sku_id,count in carts.items():
-                sku = SKU.objects.get(id=sku_id)
-                if sku.stock<count:
-                    transaction.savepoint_rollback(point)
-                    return JsonResponse({'code':400,'errmsg':'not enough stock'})
+                while True:
+
+                    sku = SKU.objects.get(id=sku_id)
+                    if sku.stock<count:
+                        transaction.savepoint_rollback(point)
+                        return JsonResponse({'code':400,'errmsg':'not enough stock'})
 
 
-                # sku.stock -= count
-                # sku.sales += count
-                # sku.save()
-                old_stock = sku.stock
-                new_stock = sku.stock - count
-                new_sales = sku.sales + count
-                result = SKU.objects.filter(id = sku_id , stock = old_stock).update(stock = new_stock, sales = new_sales)
-                if result == 0:
-                    transaction.savepoint_rollback(point)
-                    return JsonResponse({'code':400,'errmsg':'failed'})
-                orderinfo.total_count += count
-                orderinfo.total_amount += (count * sku.price)
-                OrderGoods.objects.create(
-                    order = orderinfo,
-                    sku = sku,
-                    count = count,
-                    price = sku.price
-                )
+                    # sku.stock -= count
+                    # sku.sales += count
+                    # sku.save()
+                    old_stock = sku.stock
+                    new_stock = sku.stock - count
+                    new_sales = sku.sales + count
+                    result = SKU.objects.filter(id = sku_id , stock = old_stock).update(stock = new_stock, sales = new_sales)
+                    if result == 0:
+                        continue
+                    orderinfo.total_count += count
+                    orderinfo.total_amount += (count * sku.price)
+                    OrderGoods.objects.create(
+                        order = orderinfo,
+                        sku = sku,
+                        count = count,
+                        price = sku.price
+                    )
+                    break
             orderinfo.save()
             transaction.savepoint_commit(point)
         return JsonResponse({'code':0,'errmsg':'ok','order_id':order_id})
