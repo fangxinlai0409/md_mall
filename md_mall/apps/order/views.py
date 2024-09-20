@@ -57,7 +57,8 @@ class OrderSettlementView(LoginRequiredJSONMixin,View):
         }
         return JsonResponse({'code':0,'errmsg':'ok','context':context})
 
-from apps.order.models import OrderInfo
+from apps.order.models import OrderInfo,OrderGoods
+from django.db import transaction
 class OrderCommitView(View):
     def post(self,request):
         user = request.user
@@ -84,14 +85,55 @@ class OrderCommitView(View):
         total_count = 0
         total_amount = Decimal('0')
         freight = Decimal('10.00')
+        with transaction.atomic():
+            point = transaction.savepoint()
+            orderinfo = OrderInfo.objects.create(
+                order_id = order_id,
+                user = user,
+                address = address,
+                total_count = total_count,
+                total_amount = total_amount,
+                freight = freight,
+                pay_method = pay_methond,
+                status=status
+            )
 
-        OrderInfo.objects.create(
-            order_id = order_id,
-            user = user,
-            address = address,
-            total_count = total_count,
-            total_amount = total_amount,
-            freight = freight,
-            pay_method = pay_methond,
-            status=status
-        )
+            redis_cli = get_redis_connection('carts')
+            sku_id_counts = redis_cli.hgetall('carts_%s'%user.id)
+            selected_ids = redis_cli.smembers('selected_%s'%user.id)
+            carts = {}
+            for sku_id in selected_ids:
+                carts[int(sku_id)] = int(sku_id_counts[sku_id])
+
+            for sku_id,count in carts.items():
+                sku = SKU.objects.get(id=sku_id)
+                if sku.stock<count:
+                    transaction.savepoint_rollback(point)
+                    return JsonResponse({'code':400,'errmsg':'not enough stock'})
+
+
+                # sku.stock -= count
+                # sku.sales += count
+                # sku.save()
+                old_stock = sku.stock
+                new_stock = sku.stock - count
+                new_sales = sku.sales + count
+                result = SKU.objects.filter(id = sku_id , stock = old_stock).update(stock = new_stock, sales = new_sales)
+                if result == 0:
+                    transaction.savepoint_rollback(point)
+                    return JsonResponse({'code':400,'errmsg':'failed'})
+                orderinfo.total_count += count
+                orderinfo.total_amount += (count * sku.price)
+                OrderGoods.objects.create(
+                    order = orderinfo,
+                    sku = sku,
+                    count = count,
+                    price = sku.price
+                )
+            orderinfo.save()
+            transaction.savepoint_commit(point)
+        return JsonResponse({'code':0,'errmsg':'ok','order_id':order_id})
+
+
+
+
