@@ -1,3 +1,6 @@
+import json
+from decimal import Decimal
+
 from django.http import JsonResponse
 from django.shortcuts import render
 from django.views import View
@@ -54,4 +57,41 @@ class OrderSettlementView(LoginRequiredJSONMixin,View):
         }
         return JsonResponse({'code':0,'errmsg':'ok','context':context})
 
+from apps.order.models import OrderInfo
+class OrderCommitView(View):
+    def post(self,request):
+        user = request.user
+        data = json.loads(request.body.decode())
+        address_id = data.get('address_id')
+        pay_methond = data.get('pay_method')
+        if not all([address_id,pay_methond]):
+            return JsonResponse({'code':400,'errmsg':'not enough params'})
+        try:
+            address = Address.objects.get(id = address_id)
+        except Address.DoesNotExist:
+            return JsonResponse({'code': 400, 'errmsg': 'error params'})
 
+        if pay_methond not in [OrderInfo.PAY_METHODS_ENUM['CASH'],OrderInfo.PAY_METHODS_ENUM['ALIPAY']]:
+            return JsonResponse({'code': 400, 'errmsg': 'error params'})
+
+        from django.utils import timezone
+        order_id = timezone.localtime().strftime('%Y%m%d%H%M%S') + '%09d'%user.id
+        if pay_methond == OrderInfo.PAY_METHODS_ENUM['CASH']:
+            status = OrderInfo.ORDER_STATUS_ENUM['UNSEND']
+        else:
+            status = OrderInfo.ORDER_STATUS_ENUM['UNPAID']
+
+        total_count = 0
+        total_amount = Decimal('0')
+        freight = Decimal('10.00')
+
+        OrderInfo.objects.create(
+            order_id = order_id,
+            user = user,
+            address = address,
+            total_count = total_count,
+            total_amount = total_amount,
+            freight = freight,
+            pay_method = pay_methond,
+            status=status
+        )
