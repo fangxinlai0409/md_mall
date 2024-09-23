@@ -25,7 +25,7 @@ SECRET_KEY = 'django-insecure-1&ky@5z^&za+()%wc86^i_d*oi3l5c*&5nh_&+e19_7a*o$qiv
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['www.meiduo.site','127.0.0.1']
+ALLOWED_HOSTS = ['www.meiduo.site','127.0.0.1','10.0.2.15']
 
 
 # Application definition
@@ -89,12 +89,22 @@ DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql', # 数据库引擎
         'HOST': '127.0.0.1', # 数据库主机
-        'PORT': 3306, # 数据库端口
+        'PORT': 8307, # 数据库端口
         'USER': 'fxl', # 数据库用户名
         'PASSWORD': 'Fxf270601!', # 数据库用户密码
         'NAME': 'md_mall' # 数据库名字
     },
+    'slave': {
+        'ENGINE': 'django.db.backends.mysql',  # 数据库引擎
+        'HOST': '127.0.0.1',  # 数据库主机
+        'PORT': 3306,  # 数据库端口
+        'USER': 'root',  # 数据库用户名
+        'PASSWORD': 'mysql',  # 数据库用户密码
+        'NAME': 'md_mall'  # 数据库名字
+    },
 }
+
+DATABASE_ROUTERS = ['utils.db_router.MasterSlaveDBRouter']
 
 
 # Password validation
